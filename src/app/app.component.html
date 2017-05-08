@@ -1,5 +1,12 @@
 <p-toolbar>
   <div class="ui-toolbar-group-left">
-      <button pButton type="button" label="New Connection" icon="fa-plus"></button>
+      <button pButton
+        type="button"
+        label="New Connection"
+        icon="fa-plus"
+        (click)="displayConnectionModal = true;"></button>
   </div>
 </p-toolbar>
+<p-dialog header="New Connection" [(visible)]="displayConnectionModal" modal="true">
+    <new-connection-form (onSubmit)="onNewConnectionSubmit($event)"></new-connection-form>
+</p-dialog>
