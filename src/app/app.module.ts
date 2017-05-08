@@ -3,20 +3,21 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
+import { ToolbarModule } from 'primeng/components/toolbar/toolbar';
+import { ButtonModule } from 'primeng/components/button/button';
+
 import { AppComponent } from './app.component';
-import { ToolbarComponent } from './toolbar/toolbar.component';
-import { ToolbarBtnComponent } from './toolbar-btn/toolbar-btn.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    ToolbarComponent,
-    ToolbarBtnComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    ToolbarModule,
+    ButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]
