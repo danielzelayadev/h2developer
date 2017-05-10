@@ -9,11 +9,14 @@ import { ButtonModule } from 'primeng/components/button/button';
 import { DialogModule } from 'primeng/components/dialog/dialog';
 import { InputTextModule } from 'primeng/components/inputtext/inputtext';
 import { PasswordModule } from 'primeng/components/password/password';
+import { TreeModule } from 'primeng/components/tree/tree';
+import { GrowlModule } from 'primeng/components/growl/growl';
 
 import { AppComponent } from './app.component';
 import { NewConnectionFormComponent } from './new-connection-form/new-connection-form.component';
 
-import  { ConnectionService } from './connection.service';
+import { ConnectionService } from './connection.service';
+import { UtilsService } from './utils.service';
 
 @NgModule({
   declarations: [
@@ -29,9 +32,11 @@ import  { ConnectionService } from './connection.service';
     DialogModule,
     BrowserAnimationsModule,
     InputTextModule,
-    PasswordModule
+    PasswordModule,
+    TreeModule,
+    GrowlModule
   ],
-  providers: [ ConnectionService ],
+  providers: [ ConnectionService, UtilsService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
