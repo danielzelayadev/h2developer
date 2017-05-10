@@ -16,7 +16,7 @@ import { ContextMenuModule } from 'primeng/components/contextmenu/contextmenu';
 import { ConfirmationService } from 'primeng/primeng';
 
 import { AppComponent } from './app.component';
-import { NewConnectionFormComponent } from './new-connection-form/new-connection-form.component';
+import { ConnectionFormComponent } from './connection-form/connection-form.component';
 
 import { ConnectionService } from './connection.service';
 import { UtilsService } from './utils.service';
@@ -24,7 +24,7 @@ import { UtilsService } from './utils.service';
 @NgModule({
   declarations: [
     AppComponent,
-    NewConnectionFormComponent
+    ConnectionFormComponent
   ],
   imports: [
     BrowserModule,

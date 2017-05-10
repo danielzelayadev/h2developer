@@ -3,11 +3,11 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Connection } from '../domain/connection';
 
 @Component({
-  selector: 'new-connection-form',
-  templateUrl: './new-connection-form.component.html',
-  styleUrls: ['./new-connection-form.component.scss']
+  selector: 'connection-form',
+  templateUrl: './connection-form.component.html',
+  styleUrls: ['./connection-form.component.scss']
 })
-export class NewConnectionFormComponent implements OnInit {
+export class ConnectionFormComponent implements OnInit {
 
   @Output("onSubmit") _onSubmit = new EventEmitter<Connection>();
 
