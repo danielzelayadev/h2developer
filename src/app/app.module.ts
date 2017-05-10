@@ -11,6 +11,9 @@ import { InputTextModule } from 'primeng/components/inputtext/inputtext';
 import { PasswordModule } from 'primeng/components/password/password';
 import { TreeModule } from 'primeng/components/tree/tree';
 import { GrowlModule } from 'primeng/components/growl/growl';
+import { ConfirmDialogModule } from 'primeng/components/confirmdialog/confirmdialog';
+import { ContextMenuModule } from 'primeng/components/contextmenu/contextmenu';
+import { ConfirmationService } from 'primeng/primeng';
 
 import { AppComponent } from './app.component';
 import { NewConnectionFormComponent } from './new-connection-form/new-connection-form.component';
@@ -34,9 +37,11 @@ import { UtilsService } from './utils.service';
     InputTextModule,
     PasswordModule,
     TreeModule,
-    GrowlModule
+    GrowlModule,
+    ConfirmDialogModule,
+    ContextMenuModule
   ],
-  providers: [ ConnectionService, UtilsService ],
+  providers: [ ConnectionService, UtilsService, ConfirmationService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

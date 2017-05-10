@@ -7,8 +7,16 @@
         (click)="displayConnectionModal = true;"></button>
   </div>
 </p-toolbar>
-<p-tree [value]="tree" selectionMode="single" (onNodeExpand)="onNodeExpand($event)" [style]="treeStyles"></p-tree>
+<p-tree [value]="tree"
+  selectionMode="single"
+  (onNodeExpand)="onNodeExpand($event)"
+  [style]="treeStyles"
+  [contextMenu]="cm"
+  (onNodeContextMenuSelect)="onNodeCtxSelect($event)">
+</p-tree>
+<p-contextMenu #cm [model]="ctxMenuItems"></p-contextMenu>
 <p-dialog header="New Connection" [(visible)]="displayConnectionModal" modal="true">
     <new-connection-form (onSubmit)="onNewConnectionSubmit($event)"></new-connection-form>
 </p-dialog>
+<p-confirmDialog header="Delete Confirmation" icon="fa fa-trash" width="425"></p-confirmDialog>
 <p-growl [value]="msgs"></p-growl>
