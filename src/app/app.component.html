@@ -7,6 +7,8 @@
         (click)="displayConnectionModal = true;"></button>
   </div>
 </p-toolbar>
+<p-tree [value]="tree" selectionMode="single" (onNodeExpand)="onNodeExpand($event)" [style]="treeStyles"></p-tree>
 <p-dialog header="New Connection" [(visible)]="displayConnectionModal" modal="true">
     <new-connection-form (onSubmit)="onNewConnectionSubmit($event)"></new-connection-form>
 </p-dialog>
+<p-growl [value]="msgs"></p-growl>
