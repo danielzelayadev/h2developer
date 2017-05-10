@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, RequestOptions } from '@angular/http';
 
 import 'rxjs/add/operator/toPromise';
 
@@ -27,6 +27,14 @@ export class ConnectionService {
       const response = await this.http.post(this.url, conn).toPromise();
       return response.json();
     } catch (e) {
+      return this.handleError(e);
+    }
+  }
+
+  async deleteConnection(url : string) : Promise<any> {
+    try {
+      await this.http.delete(this.url, { body: { url } }).toPromise();
+    } catch(e) {
       return this.handleError(e);
     }
   }
