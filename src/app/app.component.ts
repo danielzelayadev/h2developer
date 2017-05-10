@@ -4,7 +4,7 @@ import { Connection } from './domain/connection';
 import { ConnectionService } from './connection.service';
 import { UtilsService } from './utils.service';
 
-import { Message, TreeNode } from 'primeng/primeng';
+import { Confirmation, Message, TreeNode, ConfirmationService, MenuItem } from 'primeng/primeng';
 
 @Component({
   selector: 'app-root',
@@ -14,19 +14,39 @@ import { Message, TreeNode } from 'primeng/primeng';
 export class AppComponent implements OnInit {
   displayConnectionModal = false;
 
-  connections : string[] = [];
-
   tree : TreeNode[] = [];
   treeStyles = { height: '93.6%' };
 
+  ctxSelectedNode : TreeNode;
+
   msgs : Message[] = [];
+
+  ctxMenuItems : MenuItem[] = [];
 
   constructor(
     private connService : ConnectionService,
+    private confService : ConfirmationService,
     private utils : UtilsService){}
 
   ngOnInit() {
     this.getConnections();
+
+    this.ctxMenuItems = [
+      { label: 'Delete Connection', icon: 'fa-trash', command: ev =>
+        this.deleteConnectionCmd(this.ctxSelectedNode.label) }
+    ]
+
+  }
+
+  onNodeCtxSelect(ev) {
+    this.ctxSelectedNode = ev.node;
+  }
+
+  deleteConnectionCmd(conn : string) {
+    this.confService.confirm({
+      message:  `Are you sure you want to delete connection '${conn}'?`,
+      accept: this.deleteConnection.bind(this, conn)
+    })
   }
 
   async getConnections() {
@@ -46,6 +66,15 @@ export class AppComponent implements OnInit {
       this.msgs.push(this.utils.success('Success', 'Connection added to H2Developer.'));
     } catch (errMsg) {
       this.msgs.push(this.utils.error('New Connection Failed', errMsg));
+    }
+  }
+
+  async deleteConnection(conn : string) {
+    try {
+      await this.connService.deleteConnection(conn);
+      this.tree = this.tree.filter(node => node.label !== conn);
+    } catch (errMsg) {
+      this.msgs.push(this.utils.error('Connection Delete Failed', errMsg));
     }
   }
 
