@@ -13,6 +13,8 @@ import { PasswordModule } from 'primeng/components/password/password';
 import { AppComponent } from './app.component';
 import { NewConnectionFormComponent } from './new-connection-form/new-connection-form.component';
 
+import  { ConnectionService } from './connection.service';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -29,7 +31,7 @@ import { NewConnectionFormComponent } from './new-connection-form/new-connection
     InputTextModule,
     PasswordModule
   ],
-  providers: [],
+  providers: [ ConnectionService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
