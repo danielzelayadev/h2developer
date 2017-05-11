@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Connection } from './domain/connection';
+import { UserTreeNode } from './domain/db-tree';
 import { ConnectionService } from './connection.service';
 import { UtilsService } from './utils.service';
 
@@ -12,7 +13,8 @@ import { Confirmation, Message, TreeNode, ConfirmationService, MenuItem } from '
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  displayConnectionModal = false;
+  displayNewConnModal = false;
+  displayConnModal = false;
 
   tree : TreeNode[] = [];
   treeStyles = { height: '93.6%' };
@@ -23,6 +25,11 @@ export class AppComponent implements OnInit {
 
   ctxMenuItems : MenuItem[] = [];
 
+  connUrl : string = '';
+
+  session : Connection = null;
+  conNode : TreeNode   = null;
+
   constructor(
     private connService : ConnectionService,
     private confService : ConfirmationService,
@@ -30,15 +37,17 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.getConnections();
-
-    this.ctxMenuItems = [
-      { label: 'Delete Connection', icon: 'fa-trash', command: ev =>
-        this.deleteConnectionCmd(this.ctxSelectedNode.label) }
-    ]
-
   }
 
   onNodeCtxSelect(ev) {
+    if (ev.node.data.isConn)
+      this.ctxMenuItems = [
+        { label: 'Delete Connection', icon: 'fa-trash', command: ev =>
+          this.deleteConnectionCmd(this.ctxSelectedNode.label) }
+      ];
+    else
+      this.ctxMenuItems = [];
+
     this.ctxSelectedNode = ev.node;
   }
 
@@ -59,7 +68,7 @@ export class AppComponent implements OnInit {
   }
 
   async onNewConnectionSubmit(conn : Connection) {
-    this.displayConnectionModal = false;
+    this.displayNewConnModal = false;
     try {
       const newConn = await this.connService.newConnection(conn);
       this.pushNewConn(newConn.url);
@@ -73,19 +82,109 @@ export class AppComponent implements OnInit {
     try {
       await this.connService.deleteConnection(conn);
       this.tree = this.tree.filter(node => node.label !== conn);
+      this.session = null;
+      this.conNode = null;
     } catch (errMsg) {
       this.msgs.push(this.utils.error('Connection Delete Failed', errMsg));
     }
   }
 
-  pushNewConn(label : string) {
-    this.tree.push({
-      label, data: { isConn: true, label },
-      icon: "fa-database", leaf: false
-    })
+  async connect(conn : Connection) {
+    try {
+      const dbTree = await this.connService.connect(conn);
+      this.session = conn;
+      this.synchTree(dbTree);
+    } catch (errMsg) {
+      this.msgs.push(this.utils.error('Connection Failed,', errMsg));
+    }
   }
 
-  onNodeExpand(e) {
+  synchTree(dbTree : UserTreeNode[]) {
+    this.conNode = this.tree.find(node => node.label === this.session.url);
+
+    this.conNode.children.push({
+      label: "Users", icon: "fa-users",
+      leaf: false, children: []
+    });
+
+    const usersNode = this.conNode.children[0];
+
+    dbTree.map(utn => {
+      this.pushNewUser(usersNode, utn.user);
+
+      const userNode = usersNode.children[usersNode.children.length - 1];
+
+      userNode.children.push({
+        label: "Schemas",
+        expandedIcon: "fa-folder-open", collapsedIcon: "fa-folder",
+        leaf: false, children: []
+      });
+
+      const schemasNode = userNode.children[0];
+
+      utn.schemas.map(stn => {
+        this.pushNewSchema(schemasNode, stn.schema);
+
+        const schemaNode = schemasNode.children[schemasNode.children.length - 1];
+
+        Object.keys(stn).slice(1).map(key => {
+          const objs : string[] = stn[key];
+
+          schemaNode.children.push({
+            label: (() => key[0].toUpperCase()+key.slice(1))(), expandedIcon: "fa-folder-open",
+            collapsedIcon: "fa-folder", leaf: false, children: []
+          });
+
+          const objNode = schemaNode.children[schemaNode.children.length - 1];
+
+          objs.map(obj => this.pushNewDbObj(objNode, obj));
+        })
+      });
+    });
+  }
+
+  pushNewConn(label : string) {
+    this.tree.push({
+      label, data: { isConn: true, url: label },
+      icon: "fa-database", leaf: false, children: []
+    });
+  }
+
+  pushNewUser(node : TreeNode, label : string) {
+    node.children.push({
+      label, data: { isUser: true, name: label },
+      expandedIcon: "fa-user-o", collapsedIcon: "fa-user",
+      leaf: false, children: []
+    });
+  }
+
+  pushNewSchema(node : TreeNode, label : string) {
+    node.children.push({
+      label, data: { isSchema: true, name: label },
+      expandedIcon: "fa-folder-open", collapsedIcon: "fa-folder",
+      leaf: false, children: []
+    });
+  }
+
+  pushNewDbObj(node : TreeNode, label : string) {
+    node.children.push({
+      label, data: { isDbObj: true, name: label },
+      icon: "fa-table", leaf: true
+    });
+  }
+
+  onConnectSubmit(conn : Connection) {
+    this.displayConnModal = false;
+    this.connect(conn);
+    this.connUrl = '';
+  }
+
+  onNodeExpand({ node }) {
+    if (!node.data.isConn || (this.session !== null && this.session.url === node.label))
+      return;
+
+    this.connUrl = node.label;
+    this.displayConnModal = true;
   }
 
 }
