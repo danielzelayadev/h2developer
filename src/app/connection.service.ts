@@ -5,6 +5,7 @@ import 'rxjs/add/operator/toPromise';
 
 import { Connection } from './domain/connection';
 import { UserTreeNode } from './domain/db-tree';
+import { SessionData } from './domain/session-data';
 import { SERVER_URL } from './constants';
 
 @Injectable()
@@ -19,6 +20,15 @@ export class ConnectionService {
       const response = await this.http.post(`${this.url}/connect`, conn).toPromise();
       return response.json();
     } catch (e) {
+      return this.handleError(e);
+    }
+  }
+
+  async getSession() : Promise<SessionData> {
+    try {
+      const response = await this.http.get(`${this.url}/session`).toPromise();
+      return response.json();
+    } catch(e) {
       return this.handleError(e);
     }
   }

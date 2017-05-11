@@ -35,8 +35,10 @@ export class AppComponent implements OnInit {
     private confService : ConfirmationService,
     private utils : UtilsService){}
 
-  ngOnInit() {
-    this.getConnections();
+  async ngOnInit() {
+    await this.getConnections();
+    await this.getSession();
+    console.log(this.session, this.conNode, this.tree);
   }
 
   onNodeCtxSelect(ev) {
@@ -56,6 +58,17 @@ export class AppComponent implements OnInit {
       message:  `Are you sure you want to delete connection '${conn}'?`,
       accept: this.deleteConnection.bind(this, conn)
     })
+  }
+
+  async getSession() {
+    try {
+      const sessionData = await this.connService.getSession();
+      this.session = sessionData.conn;
+      this.conNode = this.session ? this.tree.find(node => node.label === this.session.url) : null;
+      this.synchTree(sessionData.dbTree);
+    } catch (errMsg) {
+      this.msgs.push(this.utils.error("Failed to Load Session", errMsg));
+    }
   }
 
   async getConnections() {
@@ -100,6 +113,8 @@ export class AppComponent implements OnInit {
   }
 
   synchTree(dbTree : UserTreeNode[]) {
+    if (!dbTree) return;
+
     this.conNode = this.tree.find(node => node.label === this.session.url);
 
     this.conNode.children.push({
