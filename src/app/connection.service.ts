@@ -4,6 +4,7 @@ import { Http, RequestOptions } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 
 import { Connection } from './domain/connection';
+import { UserTreeNode } from './domain/db-tree';
 import { SERVER_URL } from './constants';
 
 @Injectable()
@@ -12,6 +13,15 @@ export class ConnectionService {
   url : string = `${SERVER_URL}/connections`;
 
   constructor(private http : Http) { }
+
+  async connect(conn : Connection) : Promise<UserTreeNode[]> {
+    try {
+      const response = await this.http.post(`${this.url}/connect`, conn).toPromise();
+      return response.json();
+    } catch (e) {
+      return this.handleError(e);
+    }
+  }
 
   async getConnections() : Promise<string[]> {
     try {
