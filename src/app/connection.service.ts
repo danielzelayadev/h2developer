@@ -24,6 +24,14 @@ export class ConnectionService {
     }
   }
 
+  async disconnect() : Promise<any> {
+    try {
+      await this.http.post(`${this.url}/disconnect`, {}).toPromise();
+    } catch (e) {
+      return this.handleError(e);
+    }
+  }
+
   async getSession() : Promise<SessionData> {
     try {
       const response = await this.http.get(`${this.url}/session`).toPromise();

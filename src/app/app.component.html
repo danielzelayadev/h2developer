@@ -1,10 +1,19 @@
 <p-toolbar>
   <div class="ui-toolbar-group-left">
-      <button pButton
-        type="button"
-        label="New Connection"
-        icon="fa-plus"
-        (click)="displayNewConnModal = true;"></button>
+    <button pButton
+      type="button"
+      label="New Connection"
+      icon="fa-plus"
+      (click)="displayNewConnModal = true;"></button>
+  </div>
+  <div class="ui-toolbar-group-right">
+    <button pButton
+      type="button"
+      icon="fa-sign-out"
+      (click)="onDisconnectClick()"
+      [disabled]="!session"
+      pTooltip="Disconnect"
+      tooltipPosition="left"></button>
   </div>
 </p-toolbar>
 <p-tree [value]="tree"

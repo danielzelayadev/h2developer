@@ -38,7 +38,6 @@ export class AppComponent implements OnInit {
   async ngOnInit() {
     await this.getConnections();
     await this.getSession();
-    console.log(this.session, this.conNode, this.tree);
   }
 
   onNodeCtxSelect(ev) {
@@ -60,11 +59,14 @@ export class AppComponent implements OnInit {
     })
   }
 
+  onDisconnectClick() {
+    this.disconnect();
+  }
+
   async getSession() {
     try {
       const sessionData = await this.connService.getSession();
       this.session = sessionData.conn;
-      this.conNode = this.session ? this.tree.find(node => node.label === this.session.url) : null;
       this.synchTree(sessionData.dbTree);
     } catch (errMsg) {
       this.msgs.push(this.utils.error("Failed to Load Session", errMsg));
@@ -109,6 +111,17 @@ export class AppComponent implements OnInit {
       this.synchTree(dbTree);
     } catch (errMsg) {
       this.msgs.push(this.utils.error('Connection Failed,', errMsg));
+    }
+  }
+
+  async disconnect() {
+    try {
+      await this.connService.disconnect();
+      this.session = null;
+      this.conNode.children = [];
+      this.conNode = null;
+    } catch (errMsg) {
+      this.utils.error('Failed to Disconnect', errMsg);
     }
   }
 
