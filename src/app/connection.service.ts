@@ -6,6 +6,7 @@ import 'rxjs/add/operator/toPromise';
 import { Connection } from './domain/connection';
 import { UserTreeNode } from './domain/db-tree';
 import { SessionData } from './domain/session-data';
+import { Result } from './domain/result';
 import { SERVER_URL } from './constants';
 
 @Injectable()
@@ -62,6 +63,15 @@ export class ConnectionService {
   async deleteConnection(url : string) : Promise<any> {
     try {
       await this.http.delete(this.url, { body: { url } }).toPromise();
+    } catch(e) {
+      return this.handleError(e);
+    }
+  }
+
+  async run(statements : string[]) : Promise<Result[]> {
+    try {
+      const response = await this.http.post(`${this.url}/run`, statements).toPromise();
+      return response.json();
     } catch(e) {
       return this.handleError(e);
     }
