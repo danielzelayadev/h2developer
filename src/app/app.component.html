@@ -24,6 +24,9 @@
   (onNodeContextMenuSelect)="onNodeCtxSelect($event)">
 </p-tree>
 <p-contextMenu #cm [model]="ctxMenuItems"></p-contextMenu>
+<div class="editor-area">
+  <query-editor></query-editor>
+</div>
 <p-dialog header="New Connection" [(visible)]="displayNewConnModal" modal="true">
     <new-connection-form (onSubmit)="onNewConnectionSubmit($event)"></new-connection-form>
 </p-dialog>
