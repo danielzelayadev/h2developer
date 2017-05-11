@@ -15,6 +15,7 @@ import { ConfirmDialogModule } from 'primeng/components/confirmdialog/confirmdia
 import { ContextMenuModule } from 'primeng/components/contextmenu/contextmenu';
 import { TooltipModule } from 'primeng/components/tooltip/tooltip';
 import { InputTextareaModule } from 'primeng/components/inputtextarea/inputtextarea';
+import { DataTableModule } from 'primeng/components/datatable/datatable';
 import { ConfirmationService } from 'primeng/primeng';
 
 import { AppComponent } from './app.component';
@@ -47,7 +48,8 @@ import { QueryEditorComponent } from './query-editor/query-editor.component';
     ConfirmDialogModule,
     ContextMenuModule,
     TooltipModule,
-    InputTextareaModule
+    InputTextareaModule,
+    DataTableModule
   ],
   providers: [ ConnectionService, UtilsService, ConfirmationService ],
   bootstrap: [AppComponent]
