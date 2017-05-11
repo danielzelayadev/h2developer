@@ -40,6 +40,16 @@ export class AppComponent implements OnInit {
     await this.getSession();
   }
 
+  async runStatements(statements : string[]) {
+    console.log(statements);
+    try {
+      const results = await this.connService.run(statements);
+      console.log(results);
+    } catch (errMsg) {
+      this.utils.error('Some Stamements Failed', errMsg);
+    }
+  }
+
   onNodeCtxSelect(ev) {
     if (ev.node.data.isConn)
       this.ctxMenuItems = [
