@@ -13,6 +13,7 @@ import { TreeModule } from 'primeng/components/tree/tree';
 import { GrowlModule } from 'primeng/components/growl/growl';
 import { ConfirmDialogModule } from 'primeng/components/confirmdialog/confirmdialog';
 import { ContextMenuModule } from 'primeng/components/contextmenu/contextmenu';
+import { TooltipModule } from 'primeng/components/tooltip/tooltip';
 import { ConfirmationService } from 'primeng/primeng';
 
 import { AppComponent } from './app.component';
@@ -41,7 +42,8 @@ import { NewConnectionFormComponent } from './new-connection-form/new-connection
     TreeModule,
     GrowlModule,
     ConfirmDialogModule,
-    ContextMenuModule
+    ContextMenuModule,
+    TooltipModule
   ],
   providers: [ ConnectionService, UtilsService, ConfirmationService ],
   bootstrap: [AppComponent]
