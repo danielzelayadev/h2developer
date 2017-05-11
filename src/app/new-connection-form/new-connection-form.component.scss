@@ -1,0 +1,8 @@
+.ui-message {
+  &.ui-messages-error {
+    &.ui-corner-all {
+      margin: 0;
+      width: 100%;
+    }
+  }
+}

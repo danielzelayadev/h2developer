@@ -1,4 +1,9 @@
-<form #connForm="ngForm" (ngSubmit)="onSubmit(connForm)">
+<form #newConnForm="ngForm" (ngSubmit)="onSubmit(newConnForm)">
+  <div>
+    <h3 class="first">JDBC Url: </h3>
+    <input type="text" pInputText name="url" [(ngModel)]="model.url" #url="ngModel" required />
+  </div>
+  <div [hidden]="url.valid || url.pristine" class="ui-message ui-messages-error ui-corner-all">Url is required.</div>
   <div>
     <h3 class="first">Username: </h3>
     <input type="text" pInputText name="username" [(ngModel)]="model.username" #uname="ngModel" required />
@@ -9,6 +14,6 @@
     <input type="password" pPassword name="password" promptLabel="" [(ngModel)]="model.password" #pword="ngModel" required />
   </div>
   <div [hidden]="pword.valid || pword.pristine" class="ui-message ui-messages-error ui-corner-all">Password is required.</div>
-  <button pButton type="submit" label="Connect" indicator="false"
-    style="margin-top: 30px; width: 100%;" [(disabled)]="!connForm.form.valid || submitted"></button>
+  <button pButton type="submit" label="Confirm" indicator="false"
+    style="margin-top: 30px; width: 100%;" [(disabled)]="!newConnForm.form.valid || submitted"></button>
 </form>
