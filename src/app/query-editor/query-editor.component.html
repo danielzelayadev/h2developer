@@ -1,1 +1,4 @@
-<textarea pInputTextarea></textarea>
+<textarea pInputTextarea
+  [disabled]="disabled" [(ngModel)]="text"
+  (keydown.control.enter)="ctrlEnterPressed()">
+</textarea>
