@@ -22,12 +22,14 @@ import { ConnectionFormComponent } from './connection-form/connection-form.compo
 import { ConnectionService } from './connection.service';
 import { UtilsService } from './utils.service';
 import { NewConnectionFormComponent } from './new-connection-form/new-connection-form.component';
+import { QueryEditorComponent } from './query-editor/query-editor.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ConnectionFormComponent,
-    NewConnectionFormComponent
+    NewConnectionFormComponent,
+    QueryEditorComponent
   ],
   imports: [
     BrowserModule,
