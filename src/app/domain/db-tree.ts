@@ -1,3 +1,10 @@
+export class DBTreeRoot {
+  constructor(
+    public userSchemas : SchemaTreeNode[],
+    public otherUsers  : UserTreeNode[]
+  ){}
+}
+
 export class UserTreeNode {
 
   constructor(

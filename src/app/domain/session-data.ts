@@ -1,9 +1,9 @@
 import { Connection } from './connection';
-import { UserTreeNode } from './db-tree';
+import { DBTreeRoot } from './db-tree';
 
 export class SessionData {
   constructor(
     public conn   : Connection,
-    public dbTree : UserTreeNode[]
+    public dbTree : DBTreeRoot
   ){}
 }

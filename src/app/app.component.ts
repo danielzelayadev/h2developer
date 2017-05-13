@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Connection } from './domain/connection';
-import { UserTreeNode } from './domain/db-tree';
+import { DBTreeRoot, SchemaTreeNode, UserTreeNode } from './domain/db-tree';
 import { ConnectionService } from './connection.service';
 import { Result } from './domain/result';
 import { UtilsService } from './utils.service';
@@ -54,7 +54,7 @@ export class AppComponent implements OnInit {
   }
 
   onNodeCtxSelect(ev) {
-    if (ev.node.data.isConn)
+    if (ev.node.data.type === 'conn')
       this.ctxMenuItems = [
         { label: 'Delete Connection', icon: 'fa-trash', command: ev =>
           this.deleteConnectionCmd(this.ctxSelectedNode.label) }
@@ -146,80 +146,73 @@ export class AppComponent implements OnInit {
     }
   }
 
-  synchTree(dbTree : UserTreeNode[]) {
+  synchTree(dbTree : DBTreeRoot) {
     if (!dbTree) return;
 
     this.conNode = this.tree.find(node => node.label === this.session.url);
     this.conNode.children = [];
 
-    this.conNode.children.push({
-      label: "Users", icon: "fa-users",
-      leaf: false, children: []
-    });
+    const otherUsersNode = {
+      label: 'Other Users', data: { type: 'other-users' },
+      icon: 'fa-users', children: [], leaf: false
+    };
 
-    const usersNode = this.conNode.children[0];
+    dbTree.userSchemas.map(this.pushSchemaNode.bind(this, this.conNode));
+    dbTree.otherUsers.map(this.pushUserNode.bind(this, otherUsersNode));
 
-    dbTree.map(utn => {
-      this.pushNewUser(usersNode, utn.user);
+    this.conNode.children.push(otherUsersNode);
+  }
 
-      const userNode = usersNode.children[usersNode.children.length - 1];
+  pushSchemaNode(root : TreeNode, schemaNode : SchemaTreeNode) {
+    const newNode : TreeNode = {
+      label: schemaNode.schema, data: { type: 'schema' },
+      expandedIcon: 'fa-folder-open', collapsedIcon: 'fa-folder',
+      children: [], leaf: false
+    };
 
-      userNode.children.push({
-        label: "Schemas",
-        expandedIcon: "fa-folder-open", collapsedIcon: "fa-folder",
-        leaf: false, children: []
-      });
+    const schemaObjs = Object.keys(schemaNode).filter(so => so !== 'schema');
 
-      const schemasNode = userNode.children[0];
+    schemaObjs.map(this.pushObjGroupNode.bind(this, newNode, schemaNode));
 
-      utn.schemas.map(stn => {
-        this.pushNewSchema(schemasNode, stn.schema);
+    root.children.push(newNode);
+  }
 
-        const schemaNode = schemasNode.children[schemasNode.children.length - 1];
+  pushUserNode(root : TreeNode, userNode : UserTreeNode) {
+    const newNode : TreeNode = {
+      label: userNode.user, data: { type: 'user' },
+      expandedIcon: "fa-user-o", collapsedIcon: "fa-user",
+      children: [], leaf: false
+    };
 
-        Object.keys(stn).slice(1).map(key => {
-          const objs : string[] = stn[key];
+    userNode.schemas.map(this.pushSchemaNode.bind(this, newNode));
 
-          schemaNode.children.push({
-            label: (() => key[0].toUpperCase()+key.slice(1))(), expandedIcon: "fa-folder-open",
-            collapsedIcon: "fa-folder", leaf: false, children: []
-          });
+    root.children.push(newNode);
+  }
 
-          const objNode = schemaNode.children[schemaNode.children.length - 1];
+  pushObjGroupNode(root : TreeNode, schemaNode : SchemaTreeNode, group : string) {
+    const newNode : TreeNode = {
+      label: group.toUpperCase(), data: { type: `GRP_${group}` },
+      expandedIcon: 'fa-folder-open', collapsedIcon: 'fa-folder',
+      children: [], leaf: false
+    };
 
-          objs.map(obj => this.pushNewDbObj(objNode, obj));
-        })
-      });
+    schemaNode[group].map(this.pushObjNode.bind(this, newNode));
+
+    root.children.push(newNode);
+  }
+
+  pushObjNode(root : TreeNode, obj : string) {
+    root.children.push({
+      label: obj, data: { type: `OBJ_${obj}` },
+      icon: 'fa-table', children: []
     });
   }
 
   pushNewConn(label : string) {
     this.tree.push({
-      label, data: { isConn: true, url: label },
-      icon: "fa-database", leaf: false, children: []
-    });
-  }
-
-  pushNewUser(node : TreeNode, label : string) {
-    node.children.push({
-      label, data: { isUser: true, name: label },
-      expandedIcon: "fa-user-o", collapsedIcon: "fa-user",
-      leaf: false, children: []
-    });
-  }
-
-  pushNewSchema(node : TreeNode, label : string) {
-    node.children.push({
-      label, data: { isSchema: true, name: label },
-      expandedIcon: "fa-folder-open", collapsedIcon: "fa-folder",
-      leaf: false, children: []
-    });
-  }
-
-  pushNewDbObj(node : TreeNode, label : string) {
-    node.children.push({
-      label, data: { isDbObj: true, name: label },
-      icon: "fa-table", leaf: true
+      label, data: { type: 'conn' },
+      icon: "fa-database", children: [],
+      leaf: false
     });
   }
 
@@ -230,7 +223,7 @@ export class AppComponent implements OnInit {
   }
 
   onNodeExpand({ node }) {
-    if (!node.data.isConn || (this.session !== null && this.session.url === node.label))
+    if (node.data.type !== 'conn' || (this.session !== null && this.session.url === node.label))
       return;
 
     this.connUrl = node.label;
