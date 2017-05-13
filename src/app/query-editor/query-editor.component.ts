@@ -8,12 +8,12 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class QueryEditorComponent {
 
   @Input() disabled = false;
-  @Output() onCtrlEnter = new EventEmitter<string[]>();
+  @Output() onCtrlEnter = new EventEmitter<string>();
 
   text : string = '';
 
   ctrlEnterPressed() {
-    this.onCtrlEnter.emit(this.text.split(/[.]+;/igm));
+    this.onCtrlEnter.emit(this.text);
   }
 
 }
