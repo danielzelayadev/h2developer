@@ -49,6 +49,8 @@ export class DBObject {
 export const nonarrs = [ 'schema', 'ddl', 'query', 'templates' ];
 
 export function orderObjs(dbTree : DBTreeRoot) {
+  if (!dbTree) return;
+
   const orderSchema = (s : SchemaTreeNode) => {
     const objs = Object.keys(s).filter(k => !nonarrs.includes(k));
     objs.map(o => s[o].sort((a : DBObject, b : DBObject) => {
