@@ -110,8 +110,12 @@ export class AppComponent implements OnInit {
     try {
       await this.connService.deleteConnection(conn);
       this.tree = this.tree.filter(node => node.label !== conn);
-      this.session = null;
-      this.conNode = null;
+
+      if (conn === this.session.url) {
+        this.session = null;
+        this.conNode = null;
+      }
+
     } catch (errMsg) {
       this.msgs.push(this.utils.error('Connection Delete Failed', errMsg));
     }
