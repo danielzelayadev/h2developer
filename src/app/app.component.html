@@ -28,7 +28,7 @@
   <query-editor [disabled]="!session" (onCtrlEnter)="run($event)"></query-editor>
 </div>
 <div class="results-area" *ngIf="result">
-  <p-dataTable [value]="result.resultSet.data" *ngIf="result.status !== 'FAILED'" resizableColumns="true"
+  <p-dataTable [value]="result.resultSet.data" *ngIf="result.status === 'SUCCESS'" resizableColumns="true"
     reorderableColumns="true" [responsive]="true" scrollable="true" scrollHeight="305px"
     [style]="{ overflowX: 'hidden' }" columnResizeMode="expand"
     [rows]="10" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[5,10,20,50,100]">
@@ -38,7 +38,12 @@
             <p-multiSelect [options]="columnOptions" [(ngModel)]="result.resultSet.columns"></p-multiSelect>
         </div>
     </p-header>
-    <p-footer>{{result.resultSet.data.length}} record{{result.resultSet.data.length !== 1 ? 's' : ''}} found.</p-footer>
+    <p-footer *ngIf="result.updateCount === -1">
+      {{result.resultSet.data.length}} record{{result.resultSet.data.length !== 1 ? 's' : ''}} found
+    </p-footer>
+    <p-footer *ngIf="result.updateCount !== -1">
+      {{result.updateCount}} update{{result.updateCount !== 1 ? 's' : ''}} made
+    </p-footer>
     <p-column *ngFor="let col of result.resultSet.columns" [field]="col" [header]="col" [sortable]="true"></p-column>
   </p-dataTable>
   <div *ngIf="result.status === 'FAILED'" class="error-area">

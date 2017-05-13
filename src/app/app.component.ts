@@ -48,6 +48,9 @@ export class AppComponent implements OnInit {
     const result = await this.connService.run(statement);
     this.result = result;
     this.columnOptions = this.result.resultSet.columns.map(c => ({ label: c, value: c }));
+
+    if (this.result.updateCount !== -1)
+      await this.getSession();
   }
 
   onNodeCtxSelect(ev) {
@@ -139,6 +142,7 @@ export class AppComponent implements OnInit {
     if (!dbTree) return;
 
     this.conNode = this.tree.find(node => node.label === this.session.url);
+    this.conNode.children = [];
 
     this.conNode.children.push({
       label: "Users", icon: "fa-users",
