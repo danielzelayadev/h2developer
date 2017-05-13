@@ -24,11 +24,7 @@ export class QueryEditorComponent {
   }
 
   ctrlEnterPressed() {
-    this.onCtrlEnter.emit(this.queryVal);
-  }
-
-  keypressed(e) {
-    this.text = e.target.value;
+    this.onCtrlEnter.emit(this.text);
   }
 
 }

@@ -1,6 +1,6 @@
 <textarea pInputTextarea
   [value]="text"
   [disabled]="disabled"
-  (keypress)="keypressed($event)"
+  (input)="text=$event.target.value"
   (keydown.control.enter)="ctrlEnterPressed()">
 </textarea>
