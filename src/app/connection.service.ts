@@ -68,9 +68,9 @@ export class ConnectionService {
     }
   }
 
-  async run(statements : string[]) : Promise<Result[]> {
+  async run(statement: string) : Promise<Result> {
     try {
-      const response = await this.http.post(`${this.url}/run`, statements).toPromise();
+      const response = await this.http.post(`${this.url}/run`, statement).toPromise();
       return response.json();
     } catch(e) {
       return this.handleError(e);
