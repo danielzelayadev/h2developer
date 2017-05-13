@@ -56,6 +56,8 @@ export class AppComponent implements OnInit {
   result : Result = null;
   columnOptions : SelectItem[] = [];
 
+  text : string = '';
+
   constructor(
     private connService : ConnectionService,
     private confService : ConfirmationService,
@@ -82,21 +84,35 @@ export class AppComponent implements OnInit {
   }
 
   onNodeCtxSelect(ev) {
-    const type = ev.node.data.type;
+    const { type, ddl, query, templates } = ev.node.data;
+    const hasDDL = type !== 'other-users' && !type.includes('GRP');
 
-    if (type === 'conn')
+    if (type === 'conn') {
       this.ctxMenuItems = [
-        { label: 'Connect', icon: 'fa-plug', disabled: this.session !== null && this.session.url === ev.node.label,
-          command: e => this.onNodeExpand(ev) },
-        { label: 'Disonnect', icon: 'fa-plug', disabled: this.session === null,
-          command: e => this.disconnect() },
-        { label: 'Delete Connection', icon: 'fa-trash', command: e =>
-          this.deleteConnectionCmd(this.ctxSelectedNode.label) }
+        { label: 'Delete Connection', icon: 'fa-trash',
+          command: e => this.deleteConnectionCmd(this.ctxSelectedNode.label) }
       ];
-    else if (type !== 'other-users' && !type.includes('GRP'))
-      this.ctxMenuItems = [
-        { label: 'Show DDL', icon: 'fa-eye', command: e => {} }
-      ];
+
+      if (this.session && ev.node.label === this.session.url)
+        this.ctxMenuItems = [
+          { label: 'Create Schema', icon: 'fa-plus', command: e => this.text = templates.createSchema  },
+          { label: 'Create User',   icon: 'fa-user-plus', command: e => this.text = templates.createUser  },
+          { label: 'Change Admin',  icon: 'fa-user', command: e => this.text = templates.setAdmin },
+          { label: 'Change Password', icon: 'fa-key', command: e => this.text = templates.setPassword  },
+          { label: 'Disonnect', icon: 'fa-plug', command: e => this.disconnect() },
+          ...this.ctxMenuItems
+        ]
+      else
+        this.ctxMenuItems = [
+          { label: 'Connect', icon: 'fa-plug', command: e => this.onNodeExpand(ev) },
+          ...this.ctxMenuItems
+        ]
+    }
+    // else if () {
+    //   this.ctxMenuItems = [
+    //     { label: 'Show DDL', icon: 'fa-eye', command: e => this.text = node.data.ddl; }
+    //   ];
+    // }
     else
       this.ctxMenuItems = [];
 
