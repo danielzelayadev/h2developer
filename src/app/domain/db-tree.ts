@@ -29,3 +29,13 @@ export class SchemaTreeNode {
   ) {}
 
 }
+
+export function orderObjs(dbTree : DBTreeRoot) {
+  const orderSchema = (s : SchemaTreeNode) => {
+    const objs = Object.keys(s).filter(k => k !== 'schema');
+    objs.map(o => s[o].sort());
+  };
+
+  dbTree.userSchemas.map(orderSchema);
+  dbTree.otherUsers.map(u => u.schemas.map(orderSchema));
+}

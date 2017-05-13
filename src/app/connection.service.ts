@@ -4,7 +4,7 @@ import { Http, RequestOptions } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 
 import { Connection } from './domain/connection';
-import { DBTreeRoot } from './domain/db-tree';
+import { DBTreeRoot, orderObjs } from './domain/db-tree';
 import { SessionData } from './domain/session-data';
 import { Result } from './domain/result';
 import { SERVER_URL } from './constants';
@@ -19,7 +19,9 @@ export class ConnectionService {
   async connect(conn : Connection) : Promise<DBTreeRoot> {
     try {
       const response = await this.http.post(`${this.url}/connect`, conn).toPromise();
-      return response.json();
+      const tree = response.json();
+      orderObjs(tree);
+      return tree;
     } catch (e) {
       return this.handleError(e);
     }
@@ -36,7 +38,9 @@ export class ConnectionService {
   async getSession() : Promise<SessionData> {
     try {
       const response = await this.http.get(`${this.url}/session`).toPromise();
-      return response.json();
+      const sd : SessionData = response.json();
+      orderObjs(sd.dbTree);
+      return sd;
     } catch(e) {
       return this.handleError(e);
     }
