@@ -3,9 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { Connection } from './domain/connection';
 import { UserTreeNode } from './domain/db-tree';
 import { ConnectionService } from './connection.service';
+import { Result } from './domain/result';
 import { UtilsService } from './utils.service';
 
-import { Confirmation, Message, TreeNode, ConfirmationService, MenuItem } from 'primeng/primeng';
+import { Confirmation, Message, TreeNode, ConfirmationService, MenuItem, SelectItem } from 'primeng/primeng';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +31,9 @@ export class AppComponent implements OnInit {
   session : Connection = null;
   conNode : TreeNode   = null;
 
+  result : Result = null;
+  columnOptions : SelectItem[] = [];
+
   constructor(
     private connService : ConnectionService,
     private confService : ConfirmationService,
@@ -40,14 +44,10 @@ export class AppComponent implements OnInit {
     await this.getSession();
   }
 
-  async runStatements(statements : string[]) {
-    console.log(statements);
-    try {
-      const results = await this.connService.run(statements);
-      console.log(results);
-    } catch (errMsg) {
-      this.utils.error('Some Stamements Failed', errMsg);
-    }
+  async run(statement : string) {
+    const result = await this.connService.run(statement);
+    this.result = result;
+    this.columnOptions = this.result.resultSet.columns.map(c => ({ label: c, value: c }));
   }
 
   onNodeCtxSelect(ev) {

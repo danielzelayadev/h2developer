@@ -25,7 +25,29 @@
 </p-tree>
 <p-contextMenu #cm [model]="ctxMenuItems"></p-contextMenu>
 <div class="editor-area">
-  <query-editor [disabled]="!session" (onCtrlEnter)="runStatements($event)"></query-editor>
+  <query-editor [disabled]="!session" (onCtrlEnter)="run($event)"></query-editor>
+</div>
+<div class="results-area" *ngIf="result">
+  <p-dataTable [value]="result.resultSet.data" *ngIf="result.status !== 'FAILED'" resizableColumns="true"
+    reorderableColumns="true" [responsive]="true" scrollable="true" scrollHeight="305px"
+    [style]="{ overflowX: 'hidden' }" columnResizeMode="expand"
+    [rows]="10" [paginator]="true" [pageLinks]="3" [rowsPerPageOptions]="[5,10,20,50,100]">
+      <p-header>
+        {{result.statement.toUpperCase()}}
+        <div style="text-align:left">
+            <p-multiSelect [options]="columnOptions" [(ngModel)]="result.resultSet.columns"></p-multiSelect>
+        </div>
+    </p-header>
+    <p-footer>{{result.resultSet.data.length}} record{{result.resultSet.data.length !== 1 ? 's' : ''}} found.</p-footer>
+    <p-column *ngFor="let col of result.resultSet.columns" [field]="col" [header]="col" [sortable]="true"></p-column>
+  </p-dataTable>
+  <div *ngIf="result.status === 'FAILED'" class="error-area">
+    <h2 class="error-header">"{{result.statement.toUpperCase()}}" FAILED</h2>
+    <p class="error-msg">{{result.msg}}
+      <a href="http://h2database.com/javadoc/org/h2/api/ErrorCode.html#c{{result.errorCode}}"
+         target="blank">(Help)</a>
+    </p>
+  </div>
 </div>
 <p-dialog header="New Connection" [(visible)]="displayNewConnModal" modal="true">
     <new-connection-form (onSubmit)="onNewConnectionSubmit($event)"></new-connection-form>
