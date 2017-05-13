@@ -1,7 +1,7 @@
-export class Entry {
+export class ResultSelt {
   constructor(
-    public field : string,
-    public value : string
+    public columns : string[],
+    public data    : object[]
   ){}
 }
 
@@ -12,8 +12,9 @@ export const RS_FAILED             : string = "FAILED";
 export class Result {
   constructor(
     public statement : string,
-    public resultSet : Entry[],
+    public resultSet : ResultSelt,
     public status    : string,
-    public msg       : string
+    public msg       : string,
+    public errorCode : number
   ){}
 }
