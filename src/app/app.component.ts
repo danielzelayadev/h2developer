@@ -8,6 +8,28 @@ import { UtilsService } from './utils.service';
 
 import { Confirmation, Message, TreeNode, ConfirmationService, MenuItem, SelectItem } from 'primeng/primeng';
 
+const schemaMapping = {
+  constants: 'constant_schema',
+  constraints: 'constraint_schema',
+  'function_aliases': 'alias_schema',
+  indexes: 'table_schema',
+  sequences: 'sequence_schema',
+  tables: 'table_schema',
+  triggers: 'trigger_schema',
+  views: 'table_schema'
+};
+
+const nameMapping = {
+  constants: 'constant_name',
+  constraints: 'constraint_name',
+  'function_aliases': 'alias_name',
+  indexes: 'index_name',
+  sequences: 'sequence_name',
+  tables: 'table_name',
+  triggers: 'trigger_name',
+  views: 'table_name'
+};
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -51,6 +73,39 @@ export class AppComponent implements OnInit {
 
     if (this.result.updateCount !== -1)
       await this.getSession();
+  }
+
+  onNodeSelect(ev) {
+    const { label, data: { type }, parent } = ev.node;
+    const predicate = 'select * from information_schema.';
+
+    if (type === 'schema')
+      this.run(`${predicate}schemata where schema_name='${label.toUpperCase()}'`);
+    else if (type === 'other-users')
+      this.run(`${predicate}users where name!='${this.session.username.toUpperCase()}'`);
+    else if (type === 'user')
+      this.run(`${predicate}users where name='${label.toUpperCase()}'`);
+    else if (type.includes('GRP')) {
+      let tableName = type.split('-')[1];
+
+      if (tableName === 'functions')
+        tableName = 'function_aliases';
+
+      this.run(`${predicate}${tableName} where ${schemaMapping[tableName]}='${parent.label}'`);
+    }
+    else if (type.includes('OBJ')) {
+      let [ , tableName, objName ] = type.split('-');
+
+      if (tableName === 'tables') {
+        this.run(`select * from ${parent.parent.label}.${objName}`);
+        return;
+      }
+
+      if (tableName === 'functions')
+        tableName = 'function_aliases';
+
+      this.run(`${predicate}${tableName} where ${nameMapping[tableName]}='${objName}'`);
+    }
   }
 
   onNodeCtxSelect(ev) {
@@ -191,19 +246,19 @@ export class AppComponent implements OnInit {
 
   pushObjGroupNode(root : TreeNode, schemaNode : SchemaTreeNode, group : string) {
     const newNode : TreeNode = {
-      label: group.toUpperCase(), data: { type: `GRP_${group}` },
+      label: group.toUpperCase(), data: { type: `GRP-${group}` },
       expandedIcon: 'fa-folder-open', collapsedIcon: 'fa-folder',
       children: [], leaf: false
     };
 
-    schemaNode[group].map(this.pushObjNode.bind(this, newNode));
+    schemaNode[group].map(this.pushObjNode.bind(this, newNode, group));
 
     root.children.push(newNode);
   }
 
-  pushObjNode(root : TreeNode, obj : string) {
+  pushObjNode(root : TreeNode, group : string, obj : string) {
     root.children.push({
-      label: obj, data: { type: `OBJ_${obj}` },
+      label: obj, data: { type: `OBJ-${group}-${obj}` },
       icon: 'fa-table', children: []
     });
   }

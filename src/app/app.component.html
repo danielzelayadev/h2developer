@@ -21,6 +21,7 @@
   (onNodeExpand)="onNodeExpand($event)"
   [style]="treeStyles"
   [contextMenu]="cm"
+  (onNodeSelect)="onNodeSelect($event)"
   (onNodeContextMenuSelect)="onNodeCtxSelect($event)">
 </p-tree>
 <p-contextMenu #cm [model]="ctxMenuItems"></p-contextMenu>
