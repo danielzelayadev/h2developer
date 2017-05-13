@@ -124,6 +124,10 @@ export class AppComponent implements OnInit {
   async connect(conn : Connection) {
     try {
       const dbTree = await this.connService.connect(conn);
+
+      if (this.session)
+        this.conNode.children = [];
+
       this.session = conn;
       this.synchTree(dbTree);
     } catch (errMsg) {
