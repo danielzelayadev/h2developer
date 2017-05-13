@@ -111,7 +111,11 @@ export class AppComponent implements OnInit {
   onNodeCtxSelect(ev) {
     if (ev.node.data.type === 'conn')
       this.ctxMenuItems = [
-        { label: 'Delete Connection', icon: 'fa-trash', command: ev =>
+        { label: 'Connect', icon: 'fa-plug', disabled: this.session !== null && this.session.url === ev.node.label,
+          command: e => this.onNodeExpand(ev) },
+        { label: 'Disonnect', icon: 'fa-plug', disabled: this.session === null,
+          command: e => this.disconnect() },
+        { label: 'Delete Connection', icon: 'fa-trash', command: e =>
           this.deleteConnectionCmd(this.ctxSelectedNode.label) }
       ];
     else
