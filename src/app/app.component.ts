@@ -85,7 +85,6 @@ export class AppComponent implements OnInit {
 
   onNodeCtxSelect(ev) {
     const { type, ddl, query, templates } = ev.node.data;
-    const hasDDL = type !== 'other-users' && !type.includes('GRP');
 
     if (type === 'conn') {
       this.ctxMenuItems = [
@@ -108,11 +107,63 @@ export class AppComponent implements OnInit {
           ...this.ctxMenuItems
         ]
     }
-    // else if () {
-    //   this.ctxMenuItems = [
-    //     { label: 'Show DDL', icon: 'fa-eye', command: e => this.text = node.data.ddl; }
-    //   ];
-    // }
+    else if (type === 'schema') {
+      this.ctxMenuItems = [
+        { label: 'Show DDL', icon: 'fa-eye', command: e => this.text = ddl },
+        { label: 'Rename', icon: 'fa-pencil', command: e => this.text = templates.rename },
+        { label: 'Delete', icon: 'fa-trash', command: e => this.text = templates.drop }
+      ];
+    }
+    else if (type === 'other-users') {
+      this.ctxMenuItems = [
+        { label: 'Create User', icon: 'fa-user-plus', command: e => this.text = templates.createUser }
+      ];
+    }
+    else if (type === 'user') {
+      this.ctxMenuItems = [
+        { label: 'Show DDL', icon: 'fa-eye', command: e => this.text = ddl },
+        { label: 'Create Schema', icon: 'fa-plus', command: e => this.text = templates.createSchema },
+        { label: 'Set Admin',  icon: 'fa-user', command: e => this.text = templates.setAdmin },
+        { label: 'Rename', icon: 'fa-pencil', command: e => this.text = templates.rename },
+        { label: 'Change Password', icon: 'fa-key', command: e => this.text = templates.setPassword },
+        { label: 'Delete', icon: 'fa-trash', command: e => this.text = templates.drop }
+      ];
+    }
+    else if (type.includes('GRP')) {
+      const key = templateMapping[type.split('-')[1]];
+
+      this.ctxMenuItems = [
+        { label: `Create ${key.slice('create'.length)}`, icon: 'fa-plus', command: e => this.text = templates[key] }
+      ];
+    }
+    else if (type.includes('OBJ')) {
+      const objType = type.split('-')[1];
+      this.ctxMenuItems = [{ label: 'Show DDL', icon: 'fa-eye', command: e => this.text = ddl }];
+
+      if (objType === 'constraints' || objType === 'indexes' || objType === 'tables')
+        this.ctxMenuItems = [
+          ...this.ctxMenuItems,
+          { label: 'Rename', icon: 'fa-pencil', command: e => this.text = templates.rename }
+        ]
+      else if (objType === 'sequence' || objType === 'views')
+        this.ctxMenuItems = [
+          ...this.ctxMenuItems,
+          { label: 'Edit', icon: 'fa-pencil', command: e => this.text = templates.edit }
+        ]
+
+      if (objType === 'tables')
+        this.ctxMenuItems = [
+          ...this.ctxMenuItems,
+          { label: 'Add Column', icon: 'fa-plus', command: e => this.text = templates.addColumn },
+          { label: 'Add Constraint', icon: 'fa-plus', command: e => this.text = templates.addConstraint },
+          { label: 'Edit Column', icon: 'fa-pencil', command: e => this.text = templates.editColumn },
+          { label: 'Rename Constraint', icon: 'fa-pencil', command: e => this.text = templates.renameConstraint },
+          { label: 'Delete Column', icon: 'fa-trash', command: e => this.text = templates.dropColumn },
+          { label: 'Delete Constraint', icon: 'fa-trash', command: e => this.text = templates.dropConstraint }
+        ]
+
+      this.ctxMenuItems.push({ label: 'Delete', icon: 'fa-trash', command: e => this.text = templates.drop });
+    }
     else
       this.ctxMenuItems = [];
 
@@ -135,6 +186,7 @@ export class AppComponent implements OnInit {
       const sessionData = await this.connService.getSession();
       this.session = sessionData.conn;
       this.synchTree(sessionData.dbTree);
+      console.log(this.tree)
     } catch (errMsg) {
       this.msgs.push(this.utils.error("Failed to Load Session", errMsg));
     }
