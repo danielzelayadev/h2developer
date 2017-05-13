@@ -16,6 +16,7 @@ import { ContextMenuModule } from 'primeng/components/contextmenu/contextmenu';
 import { TooltipModule } from 'primeng/components/tooltip/tooltip';
 import { InputTextareaModule } from 'primeng/components/inputtextarea/inputtextarea';
 import { DataTableModule } from 'primeng/components/datatable/datatable';
+import { MultiSelectModule } from 'primeng/components/multiselect/multiselect';
 import { ConfirmationService } from 'primeng/primeng';
 
 import { AppComponent } from './app.component';
@@ -49,7 +50,8 @@ import { QueryEditorComponent } from './query-editor/query-editor.component';
     ContextMenuModule,
     TooltipModule,
     InputTextareaModule,
-    DataTableModule
+    DataTableModule,
+    MultiSelectModule
   ],
   providers: [ ConnectionService, UtilsService, ConfirmationService ],
   bootstrap: [AppComponent]
