@@ -1,33 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Connection } from './domain/connection';
-import { DBTreeRoot, SchemaTreeNode, UserTreeNode } from './domain/db-tree';
+import { DBTreeRoot, SchemaTreeNode, UserTreeNode, DBObject, nonarrs } from './domain/db-tree';
 import { ConnectionService } from './connection.service';
 import { Result } from './domain/result';
 import { UtilsService } from './utils.service';
 
 import { Confirmation, Message, TreeNode, ConfirmationService, MenuItem, SelectItem } from 'primeng/primeng';
 
+const templateMapping = {
+  constants: 'createConstant',
+  constraints: 'createConstraint',
+  functions: 'createFunction',
+  indexes: 'createIndex',
+  sequences: 'createSequence',
+  tables: 'createTable',
+  triggers: 'createTrigger',
+  views: 'createView'
+};
+
 const schemaMapping = {
   constants: 'constant_schema',
   constraints: 'constraint_schema',
-  'function_aliases': 'alias_schema',
+  functions: 'alias_schema',
   indexes: 'table_schema',
   sequences: 'sequence_schema',
   tables: 'table_schema',
   triggers: 'trigger_schema',
   views: 'table_schema'
-};
-
-const nameMapping = {
-  constants: 'constant_name',
-  constraints: 'constraint_name',
-  'function_aliases': 'alias_name',
-  indexes: 'index_name',
-  sequences: 'sequence_name',
-  tables: 'table_name',
-  triggers: 'trigger_name',
-  views: 'table_name'
 };
 
 @Component({
@@ -76,40 +76,15 @@ export class AppComponent implements OnInit {
   }
 
   onNodeSelect(ev) {
-    const { label, data: { type }, parent } = ev.node;
-    const predicate = 'select * from information_schema.';
-
-    if (type === 'schema')
-      this.run(`${predicate}schemata where schema_name='${label.toUpperCase()}'`);
-    else if (type === 'other-users')
-      this.run(`${predicate}users where name!='${this.session.username.toUpperCase()}'`);
-    else if (type === 'user')
-      this.run(`${predicate}users where name='${label.toUpperCase()}'`);
-    else if (type.includes('GRP')) {
-      let tableName = type.split('-')[1];
-
-      if (tableName === 'functions')
-        tableName = 'function_aliases';
-
-      this.run(`${predicate}${tableName} where ${schemaMapping[tableName]}='${parent.label}'`);
-    }
-    else if (type.includes('OBJ')) {
-      let [ , tableName, objName ] = type.split('-');
-
-      if (tableName === 'tables') {
-        this.run(`select * from ${parent.parent.label}.${objName}`);
-        return;
-      }
-
-      if (tableName === 'functions')
-        tableName = 'function_aliases';
-
-      this.run(`${predicate}${tableName} where ${nameMapping[tableName]}='${objName}'`);
-    }
+    const { type, query } = ev.node.data;
+    if (type !== 'conn')
+      this.run(query);
   }
 
   onNodeCtxSelect(ev) {
-    if (ev.node.data.type === 'conn')
+    const type = ev.node.data.type;
+
+    if (type === 'conn')
       this.ctxMenuItems = [
         { label: 'Connect', icon: 'fa-plug', disabled: this.session !== null && this.session.url === ev.node.label,
           command: e => this.onNodeExpand(ev) },
@@ -117,6 +92,10 @@ export class AppComponent implements OnInit {
           command: e => this.disconnect() },
         { label: 'Delete Connection', icon: 'fa-trash', command: e =>
           this.deleteConnectionCmd(this.ctxSelectedNode.label) }
+      ];
+    else if (type !== 'other-users' && !type.includes('GRP'))
+      this.ctxMenuItems = [
+        { label: 'Show DDL', icon: 'fa-eye', command: e => {} }
       ];
     else
       this.ctxMenuItems = [];
@@ -210,9 +189,13 @@ export class AppComponent implements OnInit {
 
     this.conNode = this.tree.find(node => node.label === this.session.url);
     this.conNode.children = [];
+    this.conNode.data.templates = dbTree.templates;
 
     const otherUsersNode = {
-      label: 'Other Users', data: { type: 'other-users' },
+      label: 'Other Users', data:
+      { type: 'other-users', ddl: '',
+        query: `select * from information_schema.users where name!='${this.session.username.toUpperCase()}'`,
+        templates: { createUser: dbTree.templates.createUser } },
       icon: 'fa-users', children: [], leaf: false
     };
 
@@ -224,12 +207,13 @@ export class AppComponent implements OnInit {
 
   pushSchemaNode(root : TreeNode, schemaNode : SchemaTreeNode) {
     const newNode : TreeNode = {
-      label: schemaNode.schema, data: { type: 'schema' },
+      label: schemaNode.schema, data: { type: 'schema', ddl: schemaNode.ddl, query: schemaNode.query,
+        templates: schemaNode.templates },
       expandedIcon: 'fa-folder-open', collapsedIcon: 'fa-folder',
       children: [], leaf: false
     };
 
-    const schemaObjs = Object.keys(schemaNode).filter(so => so !== 'schema');
+    const schemaObjs = Object.keys(schemaNode).filter(so => !nonarrs.includes(so));
 
     schemaObjs.map(this.pushObjGroupNode.bind(this, newNode, schemaNode));
 
@@ -238,7 +222,8 @@ export class AppComponent implements OnInit {
 
   pushUserNode(root : TreeNode, userNode : UserTreeNode) {
     const newNode : TreeNode = {
-      label: userNode.user, data: { type: 'user' },
+      label: userNode.user, data: { type: 'user', ddl: userNode.ddl, query: userNode.query,
+        templates: userNode.templates },
       expandedIcon: "fa-user-o", collapsedIcon: "fa-user",
       children: [], leaf: false
     };
@@ -250,7 +235,12 @@ export class AppComponent implements OnInit {
 
   pushObjGroupNode(root : TreeNode, schemaNode : SchemaTreeNode, group : string) {
     const newNode : TreeNode = {
-      label: group.toUpperCase(), data: { type: `GRP-${group}` },
+      label: group.toUpperCase(), data:
+      { type: `GRP-${group}`, ddl: '', query:
+      `select * from information_schema.${
+        group === 'functions' ? 'function_aliases' : group
+      } where ${schemaMapping[group]}='${root.label}'`,
+      templates: { [templateMapping[group]]: schemaNode.templates[templateMapping[group]] } },
       expandedIcon: 'fa-folder-open', collapsedIcon: 'fa-folder',
       children: [], leaf: false
     };
@@ -260,16 +250,18 @@ export class AppComponent implements OnInit {
     root.children.push(newNode);
   }
 
-  pushObjNode(root : TreeNode, group : string, obj : string) {
+  pushObjNode(root : TreeNode, group : string, obj : DBObject) {
     root.children.push({
-      label: obj, data: { type: `OBJ-${group}-${obj}` },
+      label: obj.name, data:
+      { type: `OBJ-${group}-${obj}`, ddl: obj.ddl, query: obj.query,
+        templates: obj.templates },
       icon: 'fa-table', children: []
     });
   }
 
   pushNewConn(label : string) {
     this.tree.push({
-      label, data: { type: 'conn' },
+      label, data: { type: 'conn', ddl: '', query: '', templates: [] },
       icon: "fa-database", children: [],
       leaf: false
     });

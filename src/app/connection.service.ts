@@ -82,8 +82,8 @@ export class ConnectionService {
   }
 
   private handleError(e : any) : Promise<any> {
-    const error = JSON.parse(e._body);
-    console.error('Server says:\n', error.log);
+    const error = e._body ? JSON.parse(e._body) : e;
+    console.error('Server says:\n', e._body ? error.log : e);
     return Promise.reject(error.message);
   }
 
