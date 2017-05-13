@@ -34,7 +34,7 @@
 </p-tree>
 <p-contextMenu #cm [model]="ctxMenuItems"></p-contextMenu>
 <div class="editor-area">
-  <query-editor [disabled]="!session" (onCtrlEnter)="run($event)"></query-editor>
+  <query-editor [(text)]="text" [disabled]="!session" (onCtrlEnter)="run($event)"></query-editor>
 </div>
 <div class="results-area" *ngIf="result">
   <p-dataTable [value]="result.resultSet.data" *ngIf="result.status === 'SUCCESS'" resizableColumns="true"
